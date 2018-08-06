@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>todos</title>
+    <link rel="stylesheet" type="text/css" href="css/base.css">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <script src="js/base.js"></script>
+    <script src="js/director.js"></script>
+    <script src="js/vue.js"></script>
+</head>
+
+<body>
+    <script>
+    </script>
+    <section class="todoapp">
+        <div id="app">
+            <header class="header" >
+                <h1>todos</h1>
+                <input 
+                    @keyup.enter = "entertodo()"
+                    v-model="newtodo"
+                    value=""
+                    class="new-todo" 
+                    placeholder="请输入内容" 
+                    autofocus="autofocus"
+                />
+            </header>
+            <section class="main" v-show="todoList.length">
+                <input class="toggle-all" type="checkbox" v-model="allDone" />
+                <ul class="todo-list">
+                    <li 
+                        v-for = "(item,index) in filteredTodos"
+                        :class="{completed: item.completed}"
+                    >
+                        <div class="view">
+                            <input 
+                                v-model = "item.completed"
+                                class="toggle" 
+                                type="checkbox" 
+                            />
+                            <label>{{item.todo}}</label>
+                            <button v-on:click="tododelete(item,index)" class="destroy"></button>
+                        </div>
+                        <input class="edit" />
+                    </li>
+                </ul>
+            </section>
+            <footer class="footer">
+	            <span class="todo-count">
+	            	<strong>0</strong>
+	            	<span>条未选中</span>
+	            </span>
+	            <ul class="filters">
+	            	<li><a href="#/all" :class="{selected: visibility == 'all'}">All</a></li> 
+	            	<li><a href="#/active" :class="{selected: visibility == 'active'}">Active</a></li> 
+	            	<li><a href="#/completed" :class="{selected: visibility == 'completed'}">Completed</a></li>
+	           	</ul>
+            </footer>
+        </div>
+    </section>
+    <script>
+        (function (exports) {
+
+            /*let data = [
+                {
+                    completed: true,
+                    todo: 'miaoveketang'
+                },
+                {
+                    completed: false,
+                    todo:'study'
+                },
+                {
+                    completed: false,
+                    todo:'test'
+                }
+            ];*/
+
+
+            filters = {
+                all: function(todoList) {
+                    return todoList;
+                },
+
+                active: function(todoList) {
+                    return todoList.filter(item => !item.completed)
+                },
+
+                completed: function(todoList) {
+                    return todoList.filter(item => item.completed)
+                }
+            }
+
+            exports.app = new Vue({
+                el: '#app',
+                data: {
+                    todoList: [
+                        {
+                            completed: true,
+                            todo: 'miaoveketang'
+                        }
+                    ],
+                    newtodo: '',
+                    editedTodo: null,
+                    visibility: 'all'
+                },
+
+
+                computed: {
+                    filteredTodos: function() {
+                        return filters[this.visibility](this.todoList);
+                    },
+                    
+                    allDone: {
+                        get(){
+                            return this.todoList.every(function(item){
+                                return item.completed;
+                            })
+                        },
+                        set(newValue){
+                            return this.todoList.forEach(item => item.completed = newValue);
+                        }
+                    }
+                },
+                methods: {
+                    entertodo: function(){
+                        if(!this.newtodo) {
+                            return false
+                        }
+                        this.todoList.push({
+                            completed: false,
+                            todo: this.newtodo
+                        })
+                        this.newtodo = '';
+                    },
+                    tododelete: function(item,index){
+                        //错误
+                        //this.$delete(this.todoList,index);
+
+
+                        //splice() 方法向/从数组中添加/删除项目，然后返回被删除的项目。
+                        this.todoList.splice(index,1)
+                    }
+                }
+            })
+        })(window);
+
+
+        (function (app, Router) {
+
+            //它不是一条语句，但是是一个字面量表达式，在 JavaScript 旧版本中会被忽略。
+            //严格模式use strict" 的目的是指定代码在严格条件下执行。
+            //严格模式下你不能使用未声明的变量。
+            'use strict';
+
+            var router = new Router();
+
+            ['all', 'active', 'completed'].forEach(function (visibility) {
+                router.on(visibility, function() {
+                    app.visibility = visibility;
+                })
+            });
+
+            router.configure({
+                notfound: function() {
+                    window.location.hash = '';
+                    app.visibility = 'all';
+                }
+            });
+
+            router.init();
+
+        })(app,Router);
+
+
+
+        (function (exports) {
+
+            var STORAGE_KEY = 'todos-vuejs';
+
+            exports.todoStorage = {
+
+            }
+        })
+
+
+    </script>
+</body>
+<script>
+	/*
+		1. 增删改查数据，要使用localStorage做数据持久化
+		2. 根据hash不同，过滤渲染的数据
+			a. 全部任务
+			b. 完成的任务
+			c. 未完成的任务
+		3. 自己设计数据结构
+			
+	*/
+</script>
+
+</html>
